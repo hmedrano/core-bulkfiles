@@ -18,6 +18,7 @@ import numpy as np
 import netCDF4 as nc 
 from scipy import interpolate 
 import logging as log
+import datetime as dt
 # Own libs
 import nemoForcingMaker
 
@@ -174,7 +175,7 @@ def doGFScore_bulk(rawDPath, dataWildC, pivotDate, hdays):
         newVars[var] = np.zeros((timeSize + (hdays * 8) , yyn.size , xxn.size ))
     # Time variable
     timeFull = np.zeros((timeSize + (hdays * 8)))
-    log.info('Buffer para variables con tamano: ' + timeFull.size )
+    log.info('Buffer para variables con tamano: ' + str(timeFull.size) )
     log.info('Malla 2D shape: ' + str(yyn.size ) + ' , ' + str(xxn.size )  )
 
 
@@ -228,7 +229,9 @@ def main():
     # Test main.
     #doFNL_GFSForcing('crudosFNL_2014-04-22__2014-04-26.nc','crudosGFS_HD_2014-04-27_00z.nc')
     log.getLogger().setLevel(10)
-    findFNL_GFS('.')
+    # findFNL_GFS('.')
+    dd = dt.datetime(2015,1,27)
+    mkGFS.doGFScore_bulk('/LUSTRE/hmedrano/STOCK/FORCING-RAW/GFS_RAW','*0P25*.nc', dd , 5)
 
 
 
