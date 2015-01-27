@@ -115,7 +115,7 @@ class netcdfFile():
                 return -1
             if varsDict != None:
                 for v in varsDict.keys():
-                    log.info('createVars: procesando variable: ' + v)
+                    log.debug('createVars: procesando variable: ' + v)
                     dimtuple = tuple(varsDict[v]['dimensions'])
                     try: 
                         # Crear variable
@@ -143,7 +143,7 @@ class netcdfFile():
                                     pass
                                 else:
                                     log.warning('crateVars: Atributo ' + att + ', no es valido')
-                        log.info('createVars: Variable ' + v + ' , creada con todos sus atributos')
+                        log.debug('createVars: Variable ' + v + ' , creada con todos sus atributos')
                     except Exception, e:
                         log.warning('createVars: Fallo al crear la variable : ' + v)
                         log.warning('createVars: Archivo netcdf: ' + self.fileName)
