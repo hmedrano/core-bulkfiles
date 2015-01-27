@@ -143,7 +143,7 @@ def getDFile(rawDPath,pDate, dataWildC):
     else: 
         return False 
 
-def doGFScore-bulk(rawDPath, dataWildC, pivotDate, hdays): 
+def doGFScore_bulk(rawDPath, dataWildC, pivotDate, hdays): 
     # Asegurarnos que los archivos fnlCrudos, gfsCrudos y gfsconfig.cfg existan
     if not (os.path.exists('gfsconfig.cfg') ):
         log.error('Alguno de los archivos necesarios no existe en el directorio de trabajo: fnlCrudos, gfsCrudos o gfsconfig.cfg')
@@ -152,7 +152,8 @@ def doGFScore-bulk(rawDPath, dataWildC, pivotDate, hdays):
     # Leemos el archivo de configuracion, para reconocer que variables 
     # se van a interpolar y preparar para los forzamientos.
     confData = nemoForcingMaker.gfsConfig()    
-    if (dtFile = getDFile(rawDPath, pivotDate, dataWildC)):
+    dtFile = getDFile(rawDPath, pivotDate, dataWildC)
+    if (dtFile):
         dst = nc.Dataset(dtFile,'r') 
         yyn = dst.variables['lat'][:]
         xxn = dst.variables['lon'][:] 
@@ -168,11 +169,11 @@ def doGFScore-bulk(rawDPath, dataWildC, pivotDate, hdays):
     # Que variables procesar.
     lVars = confData.getConfigValueVL('vars') 
     newVars = {}
-    # Iniciar el tamaño de los arreglos.
+    # Iniciar el tamano de los arreglos.
     for var in lVars:
         newVars[var] = np.zeros((timeSize + (hdays * 8) , yyn.size() , xxn.size()))
     # Time variable
-    timeFull = np.zeros((timeSize + (hdays * 8))
+    timeFull = np.zeros((timeSize + (hdays * 8)))
     log.info('Buffer para variables con tamano: ' + timeFull.size())
     log.info('Malla 2D shape: ' + str(yyn.size()) + ' , ' + str(xxn.size()) )
 
@@ -181,7 +182,8 @@ def doGFScore-bulk(rawDPath, dataWildC, pivotDate, hdays):
     # Iniciar los arreglos con los hdays
     for d in range(hdays,0,-1): 
         dtC = pivotDate - dt.timedelta(days=d) 
-        if (dtFPath = getDFile(rawDPath, dtC, dataWildC) )   
+        dtFPath = getDFile(rawDPath, dtC, dataWildC)
+        if (dtFPath):   
             log.info('Obteniendo datos de archivo : ' + str(dtFPath))                 
             dst = nc.Dataset(dtFPath, 'r') 
 
@@ -200,7 +202,8 @@ def doGFScore-bulk(rawDPath, dataWildC, pivotDate, hdays):
 
     # Agregar la informacion del pronostico que contenga el dataset "pivotDate" 
     # 
-    if (dtFile = getDFile(rawDPath, pivotDate, dataWildC)):
+    dtFile = getDFile(rawDPath, pivotDate, dataWildC)
+    if (dtFile):
         dst = nc.Dataset(dtFile,'r')
 
         for tI in range(0,timeSize): 
