@@ -123,15 +123,15 @@ def doFNL_GFSForcing(fnlCrudos,gfsCrudos):
     
     return 0    
 
-def selDRange(dst, from, to): 
+def selDRange(dst, dFrom, dTo): 
     """ 
      Return num time indices that fit in the "from"(datetime) to "to" parameters in the netCDF4 dataset dst 
     """
 
     timeVarName = 'time'
     timeV = dst.variables[timeVarName][:]
-    fromNum = nc.date2num(from,dst.variables[timeVarName].units) 
-    toNum = nc.date2num(to, dst.variables[timeVarName].units) 
+    fromNum = nc.date2num(dFrom,dst.variables[timeVarName].units) 
+    toNum = nc.date2num(dTo, dst.variables[timeVarName].units) 
 
     return np.argwwhere((timeV >= fromNum) & (timeV < toNum)).flatten() 
 
