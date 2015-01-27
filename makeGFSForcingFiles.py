@@ -171,7 +171,7 @@ def doGFScore_bulk(rawDPath, dataWildC, pivotDate, hdays):
     newVars = {}
     # Iniciar el tamano de los arreglos.
     for var in lVars:
-        newVars[var] = np.zeros((timeSize + (hdays * 8) , yyn.size , xxn.size )
+        newVars[var] = np.zeros((timeSize + (hdays * 8) , yyn.size , xxn.size ))
     # Time variable
     timeFull = np.zeros((timeSize + (hdays * 8)))
     log.info('Buffer para variables con tamano: ' + timeFull.size )
