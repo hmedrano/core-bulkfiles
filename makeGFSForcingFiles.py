@@ -218,7 +218,7 @@ def doGFScore_bulk(rawDPath, dataWildC, pivotDate, hdays):
 
     # Utilizar los scripts para generar archivos mensuales o anuales de los forzamientos
     myForc = nemoForcingMaker.nemoForcing() 
-    out = myForc.makeForcingCoreBulk( {'time' : timeFull, 'lat' : yyn, 'lon': xxn}, newVars, 'yearly' )
+    out = myForc.makeForcingCoreBulk( {'time' : timeFull, 'lat' : yyn, 'lon': xxn}, newVars, 3 , 'yearly' )
 
     return out
 
@@ -231,7 +231,7 @@ def main():
     log.getLogger().setLevel(10)
     # findFNL_GFS('.')
     dd = dt.datetime(2015,1,27)
-    doGFScore_bulk('/LUSTRE/hmedrano/STOCK/FORCING-RAW/GFS_RAW','*0P25*.nc', dd , 5)
+    doGFScore_bulk('/LUSTRE/hmedrano/STOCK/FORCING-RAW/GFS_RAW','*0P25*.nc', dd , 0)
 
 
 

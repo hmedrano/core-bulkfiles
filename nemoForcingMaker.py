@@ -164,13 +164,15 @@ class nemoForcing(gfsConfig):
     def mtDToDatetime(self, dataOrd):
         return dt.datetime.fromordinal(int(dataOrd)) + dt.timedelta(days=dataOrd%1) - dt.timedelta(days=1)
 
-    def makeForcingCoreBulk(self,dimsData,varsData,sFileSize='yearly'):
+    def makeForcingCoreBulk(self,dimsData,varsData,timeD , sFileSize='yearly'):
         """
          dimsData es un <python dict> con el siguiente formato:
           {'time' : values , 'lat' : values , 'lon' : values}
            
          varsData es un <python dict> con el siguiente formato:
           {'var1' : values , 'var2' : values, ...}
+
+         timeD Indica a cada cuantas horas vienen los datos en varsData, puede ser @ 3hrs, 6hrs, 12hrs
 
          La funcion hace un ciclo con los valores de la dimension temporal, se obtiene el mes y el ano al que pertenece ese instante
          cada vez que el mes, en el siguiente instante de tiempo, se crea un nuevo archivo con datos "mensuales" o "anuales" 
@@ -187,6 +189,7 @@ class nemoForcing(gfsConfig):
         
         N = 0 
         RADSWC = 0 
+        dfD = ((24 / timeD) - 1)
         # Ciclo en la variable de dimension de tiempo: 
         for idx_tval,tval in enumerate(dimsData['time'][:]):
             # Convertir el valor tval a datetime.
@@ -228,13 +231,13 @@ class nemoForcing(gfsConfig):
                 else:
                     sFileTDimSize = self.dateToNemoCalendar(tvaldate,sCalendarType,'monthLen')
 
-                # timeVD contiene los valores temporales para el (meso o ano) que se esta trabajando.
-                # espaciado cada 6 horas
+                # timeVD contiene los valores temporales para el (mes o ano) que se esta trabajando.
+                # espaciado cada "timeD" horas
                 timeVD=[]
                 timeVDD= []
-                for t in range(0,(sFileTDimSize*24)/6):
+                for t in range(0,(sFileTDimSize*24) / timeD):
                     #timeVD.append( self.datetime2matlabdn( ds + dt.timedelta(hours=6.0*t) + dt.timedelta(days=1) ) ) 
-                    timeVD.append( self.dateToNemoCalendar(ds + dt.timedelta(hours=6.0*t),sCalendarType) )
+                    timeVD.append( self.dateToNemoCalendar(ds + dt.timedelta(hours=timeD * t),sCalendarType) )
 
                 # timeVDD contiene los valores temporales para el (mes o ano), espaciado en dias 
                 for t in range(0,sFileTDimSize):
@@ -282,34 +285,40 @@ class nemoForcing(gfsConfig):
                         for di in range(idx,len(timeVD)):
                             ncFiles[var].saveDataS(self.variablesRename[var],varsData[var][N][:][:],(di))
                 else:
-                    if RADSWC >= 3:
+                    if RADSWC >= dfD: 
                         #TODO: Verificar que se estan haciendo promedios diarios, las fechas: dimsData['time'][N-3] .. dimsData['time'][N-3] deben pertenecer
                         #      al mismo dia.
-                        idxD = (np.abs(timeVDD - self.dateToNemoCalendar(self.mtDToDatetime(dimsData['time'][N-3]), sCalendarType))).argmin()
-                        dataDaily = ( varsData[var][N][:][:] + varsData[var][N-1][:][:] + varsData[var][N-2][:][:] + varsData[var][N-3][:][:] ) / 4.0
+                        idxD = (np.abs(timeVDD - self.dateToNemoCalendar(self.mtDToDatetime(dimsData['time'][N - dfD ]), sCalendarType))).argmin() 
+                        dataDaily = 0 
+                        fechastr = ''
+                        for c in range(0,dfD+1):
+                            dataDaily = dataDaily  +  varsData[var][N - c][:][:]
+                            fechastr = str(self.dateToNemoCalendar(self.mtDToDatetime(dimsData['time'][ N -c ]),sCalendarType)) + fechastr + ' '
+                        dataDaily = dataDaily / (dfD+1)
+                        #dataDaily = ( varsData[var][N][:][:] + varsData[var][N-1][:][:] + varsData[var][N-2][:][:] + varsData[var][N-3][:][:] ) / 4.0
                         ncFiles[var].saveDataS(self.variablesRename[var], dataDaily ,(idxD)) 
-                        fechastr = str(self.dateToNemoCalendar(self.mtDToDatetime(dimsData['time'][N-3]),sCalendarType)) + ' ' + \
-                                   str(self.dateToNemoCalendar(self.mtDToDatetime(dimsData['time'][N-2]),sCalendarType)) + ' ' + \
-                                   str(self.dateToNemoCalendar(self.mtDToDatetime(dimsData['time'][N-1]),sCalendarType)) + ' ' + \
-                                   str(self.dateToNemoCalendar(self.mtDToDatetime(dimsData['time'][N]),sCalendarType))  
+                        #fechastr = str(self.dateToNemoCalendar(self.mtDToDatetime(dimsData['time'][N-3]),sCalendarType)) + ' ' + \
+                        #           str(self.dateToNemoCalendar(self.mtDToDatetime(dimsData['time'][N-2]),sCalendarType)) + ' ' + \
+                        #           str(self.dateToNemoCalendar(self.mtDToDatetime(dimsData['time'][N-1]),sCalendarType)) + ' ' + \
+                        #           str(self.dateToNemoCalendar(self.mtDToDatetime(dimsData['time'][N]),sCalendarType))  
                         log.info('Haciendo promedio diario para radsw con fechas : ' + fechastr)
                         log.info('Salvando en el indice : ' + str(idxD))
 
                         # Rellenar registros de datos al inicio y al final del archivo 
-                        if idx_tval == 3:
+                        if idx_tval == dfD:
                             log.info('Rellenando inicio de archivo, radsw')
                             for di in range(0,idxD):
                                 ncFiles[var].saveDataS(self.variablesRename[var],dataDaily,(di))
-                        if idx_tval >= int(dimsData['time'][:].size/4)*4 - 1:
+                        if idx_tval >= int(dimsData['time'][:].size / (dfD+1)) * (dfD+1) - 1:
                             log.info('Rellenando final de archivo, radsw')
                             for di in range(idxD,len(timeVDD)):
                                 ncFiles[var].saveDataS(self.variablesRename[var],dataDaily,(di))                        
                         
-            # Contador indice en variable temporal para datos @6hrs            
+            # Contador indice en variable temporal para datos @"timeD"hrs            
             N = N + 1 
             # Contador indice en variable temporal para "radsw", @24 hrs.
             RADSWC = RADSWC + 1
-            if RADSWC > 3:
+            if RADSWC > dfD:
                 RADSWC = 0
         
         log.info('makeForcingCoreBulk: Informacion salvada.')
