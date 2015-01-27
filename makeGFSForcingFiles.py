@@ -123,11 +123,111 @@ def doFNL_GFSForcing(fnlCrudos,gfsCrudos):
     
     return 0    
 
+def selDRange(dst, from, to): 
+    """ 
+     Return num time indices that fit in the "from"(datetime) to "to" parameters in the netCDF4 dataset dst 
+    """
+
+    timeVarName = 'time'
+    timeV = dst.variables[timeVarName][:]
+    fromNum = nc.date2num(from,dst.variables[timeVarName].units) 
+    toNum = nc.date2num(to, dst.variables[timeVarName].units) 
+
+    return np.argwwhere((timeV >= fromNum) & (timeV < toNum)).flatten() 
+
+def getDFile(rawDPath,pDate, dataWildC):
+    dtPathW = os.path.join(rawDPath, pDate.strftime('%Y%m%d') , dataWildC) 
+    dtFPath = glob.glob(dtPathW) 
+    if len(dtFPath) > 0:
+        return dtFPath[0]
+    else: 
+        return False 
+
+def doGFScore-bulk(rawDPath, dataWildC, pivotDate, hdays): 
+    # Asegurarnos que los archivos fnlCrudos, gfsCrudos y gfsconfig.cfg existan
+    if not (os.path.exists('gfsconfig.cfg') ):
+        log.error('Alguno de los archivos necesarios no existe en el directorio de trabajo: fnlCrudos, gfsCrudos o gfsconfig.cfg')
+        return -1
+    
+    # Leemos el archivo de configuracion, para reconocer que variables 
+    # se van a interpolar y preparar para los forzamientos.
+    confData = nemoForcingMaker.gfsConfig()    
+    if (dtFile = getDFile(rawDPath, pivotDate, dataWildC)):
+        dst = nc.Dataset(dtFile,'r') 
+        yyn = dst.variables['lat'][:]
+        xxn = dst.variables['lon'][:] 
+        timeSize = dst.variables['time'][:].size() 
+        dst.close()
+    else:
+        log.error('El archivo con el dataset para la fecha ' + str(pivotDate) + ' no se encontro. Abortando')
+        return -1 
+
+
+    # time variable
+
+    # Que variables procesar.
+    lVars = confData.getConfigValueVL('vars') 
+    newVars = {}
+    # Iniciar el tamaño de los arreglos.
+    for var in lVars:
+        newVars[var] = np.zeros((timeSize + (hdays * 8) , yyn.size() , xxn.size()))
+    # Time variable
+    timeFull = np.zeros((timeSize + (hdays * 8))
+    log.info('Buffer para variables con tamano: ' + timeFull.size())
+    log.info('Malla 2D shape: ' + str(yyn.size()) + ' , ' + str(xxn.size()) )
+
+
+    nI = 0
+    # Iniciar los arreglos con los hdays
+    for d in range(hdays,0,-1): 
+        dtC = pivotDate - dt.timedelta(days=d) 
+        if (dtFPath = getDFile(rawDPath, dtC, dataWildC) )   
+            log.info('Obteniendo datos de archivo : ' + str(dtFPath))                 
+            dst = nc.Dataset(dtFPath, 'r') 
+
+            # Seleccionar un dia del dataset historico
+            dInd = selDRange(dst, dtC , dtC+dt.timedelta(days=1)) 
+            for i in dInd:
+                for var in lVars:
+                    newVars[var][nI][:][:] = dst.variables[var][dInd][:][:]
+                timeFull[nI] = dst.variables['time'][dInd]
+                nI = nI + 1 
+
+            dst.close()
+        else:
+            log.info('No se encontro archivo para datos con fecha: ' + str(dtC))
+
+
+    # Agregar la informacion del pronostico que contenga el dataset "pivotDate" 
+    # 
+    if (dtFile = getDFile(rawDPath, pivotDate, dataWildC)):
+        dst = nc.Dataset(dtFile,'r')
+
+        for tI in range(0,timeSize): 
+            for var in lVars:
+                newVars[var][nI][:][:] = dst.variables[var][tI][:][:] 
+            timeFull[nI] = dst.variables['time'][tI] 
+            nI = nI + 1 
+
+        dst.close()
+
+
+    # Utilizar los scripts para generar archivos mensuales o anuales de los forzamientos
+    myForc = nemoForcingMaker.nemoForcing() 
+    out = myForc.makeForcingCoreBulk( {'time' : timeFull, 'lat' : yyn, 'lon': xxn}, newVars, 'yearly' )
+
+    return out
+
+
+
+
 def main():
     # Test main.
     #doFNL_GFSForcing('crudosFNL_2014-04-22__2014-04-26.nc','crudosGFS_HD_2014-04-27_00z.nc')
     log.getLogger().setLevel(10)
     findFNL_GFS('.')
+
+
 
 if __name__ == "__main__":
     main()
