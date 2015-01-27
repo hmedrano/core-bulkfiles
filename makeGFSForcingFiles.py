@@ -228,7 +228,7 @@ def doGFScore_bulk(rawDPath, dataWildC, pivotDate, hdays):
 def main():
     # Test main.
     #doFNL_GFSForcing('crudosFNL_2014-04-22__2014-04-26.nc','crudosGFS_HD_2014-04-27_00z.nc')
-    log.getLogger().setLevel(10)
+    log.getLogger().setLevel(20)
     # findFNL_GFS('.')
     dd = dt.datetime(2015,1,27)
     doGFScore_bulk('/LUSTRE/hmedrano/STOCK/FORCING-RAW/GFS_RAW','*0P25*.nc', dd , 0)
