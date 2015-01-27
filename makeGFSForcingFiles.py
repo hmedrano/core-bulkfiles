@@ -206,6 +206,7 @@ def doGFScore_bulk(rawDPath, dataWildC, pivotDate, hdays):
     dtFile = getDFile(rawDPath, pivotDate, dataWildC)
     if (dtFile):
         dst = nc.Dataset(dtFile,'r')
+        log.info('Obteniendo datos de archivo : ' + str(dtFile))
 
         for tI in range(0,timeSize): 
             for var in lVars:
