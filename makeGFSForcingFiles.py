@@ -157,7 +157,7 @@ def doGFScore_bulk(rawDPath, dataWildC, pivotDate, hdays):
         dst = nc.Dataset(dtFile,'r') 
         yyn = dst.variables['lat'][:]
         xxn = dst.variables['lon'][:] 
-        timeSize = dst.variables['time'][:].size() 
+        timeSize = dst.variables['time'][:].size
         dst.close()
     else:
         log.error('El archivo con el dataset para la fecha ' + str(pivotDate) + ' no se encontro. Abortando')
@@ -171,11 +171,11 @@ def doGFScore_bulk(rawDPath, dataWildC, pivotDate, hdays):
     newVars = {}
     # Iniciar el tamano de los arreglos.
     for var in lVars:
-        newVars[var] = np.zeros((timeSize + (hdays * 8) , yyn.size() , xxn.size()))
+        newVars[var] = np.zeros((timeSize + (hdays * 8) , yyn.size , xxn.size )
     # Time variable
     timeFull = np.zeros((timeSize + (hdays * 8)))
-    log.info('Buffer para variables con tamano: ' + timeFull.size())
-    log.info('Malla 2D shape: ' + str(yyn.size()) + ' , ' + str(xxn.size()) )
+    log.info('Buffer para variables con tamano: ' + timeFull.size )
+    log.info('Malla 2D shape: ' + str(yyn.size ) + ' , ' + str(xxn.size )  )
 
 
     nI = 0
