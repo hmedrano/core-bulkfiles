@@ -134,7 +134,7 @@ def selDRange(dst, dFrom, dTo):
     fromNum = nc.date2num(dFrom,dst.variables[timeVarName].units) 
     toNum = nc.date2num(dTo, dst.variables[timeVarName].units) 
 
-    return np.argwwhere((timeV >= fromNum) & (timeV < toNum)).flatten() 
+    return np.argwhere((timeV >= fromNum) & (timeV < toNum)).flatten() 
 
 def getDFile(rawDPath,pDate, dataWildC):
     dtPathW = os.path.join(rawDPath, pDate.strftime('%Y%m%d') , dataWildC) 
@@ -231,7 +231,7 @@ def main():
     log.getLogger().setLevel(10)
     # findFNL_GFS('.')
     dd = dt.datetime(2015,1,27)
-    mkGFS.doGFScore_bulk('/LUSTRE/hmedrano/STOCK/FORCING-RAW/GFS_RAW','*0P25*.nc', dd , 5)
+    doGFScore_bulk('/LUSTRE/hmedrano/STOCK/FORCING-RAW/GFS_RAW','*0P25*.nc', dd , 5)
 
 
 
