@@ -202,7 +202,14 @@ def doGFScore_bulk(rawDPath, dataWildC, pivotDate, hdays):
             dInd = selDRange(dst, dtC , dtC+dt.timedelta(days=1)) 
             for i in dInd:
                 for var in lVars:
-                    newVars[var][nI][:][:] = dst.variables[var][i][:][:]
+                    if (type(dst.variables[var][i][:][:]) is np.ma.MaskedArray):
+                        if not dst.variables[var][i][:][:].mask.all():
+                            newVars[var][nI][:][:] = dst.variables[var][i][:][:].filled(0) 
+                        else: 
+                            # All values in array are masked, this means that the register is empty, what to do? 
+                            newVars[var][nI][:][:] = dst.variables[var][i][:][:].filled(0)
+                    else:
+                        newVars[var][nI][:][:] = dst.variables[var][i][:][:]
                 timeFull[nI] = dst.variables['time'][i]
                 nI = nI + 1 
 
@@ -220,7 +227,14 @@ def doGFScore_bulk(rawDPath, dataWildC, pivotDate, hdays):
 
         for tI in range(0,timeSize): 
             for var in lVars:
-                newVars[var][nI][:][:] = dst.variables[var][tI][:][:] 
+                if (type(dst.variables[var][tI][:][:]) is np.ma.MaskedArray):
+                    if not dst.variables[var][tI][:][:].mask.all():
+                        newVars[var][nI][:][:] = dst.variables[var][tI][:][:].filled(0) 
+                    else:
+                        # All values in array are masked, this means that the register is empty, what to do? 
+                        newVars[var][nI][:][:] = dst.variables[var][tI][:][:].filled(0) 
+                else:
+                    newVars[var][nI][:][:] = dst.variables[var][tI][:][:] 
             timeFull[nI] = dst.variables['time'][tI] 
             nI = nI + 1 
 
