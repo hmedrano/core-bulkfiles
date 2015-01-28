@@ -139,9 +139,9 @@ def selDRange(dst, dFrom, dTo):
     timeV = dst.variables[timeVarName][:]
     if (dst.variables[timeVarName].calendar == 'ISO_GREGORIAN'):
         fromNum = datetimeToMatlabDatenum(dFrom) 
-        toNum = datetimeToMatlabDatenum(toNum)
+        toNum = datetimeToMatlabDatenum(dTo)
     else: 
-        fromNum = nc.date2num(dFrom,dst.variables[timeVarName].units, dst.variables[timeVarName].calendar) 
+        fromNum = nc.date2num(dFrom, dst.variables[timeVarName].units, dst.variables[timeVarName].calendar) 
         toNum = nc.date2num(dTo, dst.variables[timeVarName].units, dst.variables[timeVarName].calendar) 
 
     return np.argwhere((timeV >= fromNum) & (timeV < toNum)).flatten() 
