@@ -286,15 +286,15 @@ class nemoForcing(gfsConfig):
                             ncFiles[var].saveDataS(self.variablesRename[var],varsData[var][N][:][:],(di))
                 else:
                     if RADSWC >= dfD: 
-                        #TODO: Verificar que se estan haciendo promedios diarios, las fechas: dimsData['time'][N-3] .. dimsData['time'][N-3] deben pertenecer
+                        #TODO: Verificar que se estan haciendo promedios diarios, las fechas: dimsData['time'][N-dfD] .. dimsData['time'][N] deben pertenecer
                         #      al mismo dia.
-                        idxD = (np.abs(timeVDD - self.dateToNemoCalendar(self.mtDToDatetime(dimsData['time'][N - dfD ]), sCalendarType))).argmin() 
-                        dataDaily = 0 
+                        idxD = ( np.abs( timeVDD - self.dateToNemoCalendar(self.mtDToDatetime(dimsData['time'][N - dfD ]), sCalendarType) ) ).argmin() 
+                        dataDaily = 0
                         fechastr = ''
                         for c in range(0,dfD+1):
                             dataDaily = dataDaily  +  varsData[var][N - c][:][:]
                             fechastr = str(self.dateToNemoCalendar(self.mtDToDatetime(dimsData['time'][ N -c ]),sCalendarType)) + ' , ' + fechastr 
-                        dataDaily = dataDaily / (dfD+1)
+                        dataDaily = dataDaily / float(dfD+1.0)
                         #dataDaily = ( varsData[var][N][:][:] + varsData[var][N-1][:][:] + varsData[var][N-2][:][:] + varsData[var][N-3][:][:] ) / 4.0
                         ncFiles[var].saveDataS(self.variablesRename[var], dataDaily ,(idxD)) 
                         #fechastr = str(self.dateToNemoCalendar(self.mtDToDatetime(dimsData['time'][N-3]),sCalendarType)) + ' ' + \
