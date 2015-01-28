@@ -291,10 +291,13 @@ class nemoForcing(gfsConfig):
                         idxD = ( np.abs( timeVDD - self.dateToNemoCalendar(self.mtDToDatetime(dimsData['time'][N - dfD ]), sCalendarType) ) ).argmin() 
                         dataDaily = 0
                         fechastr = ''
+                        divFactor = 0
                         for c in range(0,dfD+1):
-                            dataDaily = dataDaily  +  varsData[var][N - c][:][:]
-                            fechastr = str(self.dateToNemoCalendar(self.mtDToDatetime(dimsData['time'][ N -c ]),sCalendarType)) + ' , ' + fechastr 
-                        dataDaily = dataDaily / float(dfD+1.0)
+                        	if not (varsData[var][N - c][:][:] == 0).all():                        	
+                            	dataDaily = dataDaily  +  varsData[var][N - c][:][:]
+                            	divFactor = divFactor + 1.0 
+                            	fechastr = str(self.dateToNemoCalendar(self.mtDToDatetime(dimsData['time'][ N -c ]),sCalendarType)) + ' , ' + fechastr 
+                        dataDaily = dataDaily / float(divFactor)
                         #dataDaily = ( varsData[var][N][:][:] + varsData[var][N-1][:][:] + varsData[var][N-2][:][:] + varsData[var][N-3][:][:] ) / 4.0
                         ncFiles[var].saveDataS(self.variablesRename[var], dataDaily ,(idxD)) 
                         #fechastr = str(self.dateToNemoCalendar(self.mtDToDatetime(dimsData['time'][N-3]),sCalendarType)) + ' ' + \
