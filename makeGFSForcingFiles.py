@@ -202,8 +202,8 @@ def doGFScore_bulk(rawDPath, dataWildC, pivotDate, hdays):
             dInd = selDRange(dst, dtC , dtC+dt.timedelta(days=1)) 
             for i in dInd:
                 for var in lVars:
-                    newVars[var][nI][:][:] = dst.variables[var][dInd][:][:]
-                timeFull[nI] = dst.variables['time'][dInd]
+                    newVars[var][nI][:][:] = dst.variables[var][i][:][:]
+                timeFull[nI] = dst.variables['time'][i]
                 nI = nI + 1 
 
             dst.close()
