@@ -124,6 +124,12 @@ def doFNL_GFSForcing(fnlCrudos,gfsCrudos):
     
     return 0    
 
+def matlabDatenumToDatetime(value):
+    return dt.datetime.fromordinal(int(value)) + dt.timedelta(days=value%1) - dt.timedelta(days = 366)
+
+def datetimeToMatlabDatenum(dtValue):
+    return dtValue.toordinal() + 366 
+
 def selDRange(dst, dFrom, dTo): 
     """ 
      Return num time indices that fit in the "from"(datetime) to "to" parameters in the netCDF4 dataset dst 
@@ -131,8 +137,12 @@ def selDRange(dst, dFrom, dTo):
 
     timeVarName = 'time'
     timeV = dst.variables[timeVarName][:]
-    fromNum = nc.date2num(dFrom,dst.variables[timeVarName].units) 
-    toNum = nc.date2num(dTo, dst.variables[timeVarName].units) 
+    if (dst.variables[timeVarName].calendar == 'ISO_GREGORIAN'):
+        fromNum = datetimeToMatlabDatenum(dFrom) 
+        toNum = datetimeToMatlabDatenum(toNum)
+    else: 
+        fromNum = nc.date2num(dFrom,dst.variables[timeVarName].units, dst.variables[timeVarName].calendar) 
+        toNum = nc.date2num(dTo, dst.variables[timeVarName].units, dst.variables[timeVarName].calendar) 
 
     return np.argwhere((timeV >= fromNum) & (timeV < toNum)).flatten() 
 
@@ -232,7 +242,7 @@ def main():
     log.getLogger().setLevel(20)
     # findFNL_GFS('.')
     dd = dt.datetime(2015,1,27)
-    doGFScore_bulk('/LUSTRE/hmedrano/STOCK/FORCING-RAW/GFS_RAW','*0P25*.nc', dd , 0)
+    doGFScore_bulk('/LUSTRE/hmedrano/STOCK/FORCING-RAW/GFS_RAW','*0P25*.nc', dd , 5)
 
 
 
