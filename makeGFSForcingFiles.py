@@ -195,11 +195,12 @@ def doGFScore_bulk(rawDPath, dataWildC, pivotDate, hdays):
         dtC = pivotDate - dt.timedelta(days=d) 
         dtFPath = getDFile(rawDPath, dtC, dataWildC)
         if (dtFPath):   
-            log.info('Obteniendo datos de archivo : ' + str(dtFPath))                 
+            log.info('Obteniendo datos de archivo : ' + str(dtFPath) + '  Buscando fecha: ' + str(dtC))                 
             dst = nc.Dataset(dtFPath, 'r') 
 
             # Seleccionar un dia del dataset historico
             dInd = selDRange(dst, dtC , dtC+dt.timedelta(days=1)) 
+            log.info('Obteniendo de indices: ' +str(dInd))
             for i in dInd:
                 for var in lVars:
                     if (type(dst.variables[var][i][:][:]) is np.ma.MaskedArray):
