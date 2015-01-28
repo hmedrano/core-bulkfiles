@@ -128,7 +128,7 @@ def matlabDatenumToDatetime(value):
     return dt.datetime.fromordinal(int(value)) + dt.timedelta(days=value%1) - dt.timedelta(days = 366)
 
 def datetimeToMatlabDatenum(dtValue):
-    return dtValue.toordinal() + 366 
+    return dtValue.toordinal() # + 366 
 
 def selDRange(dst, dFrom, dTo): 
     """ 
